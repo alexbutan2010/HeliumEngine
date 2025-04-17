@@ -1,0 +1,309 @@
+// Hydrogen Component Library
+// This file contains components for testing the Hydrogen framework
+
+// Counter Component
+component Counter {
+  state {
+    count: 0
+  }
+  
+  methods {
+    increment() {
+      this.count++;
+    }
+    
+    decrement() {
+      if (this.count > 0) {
+        this.count--;
+      }
+    }
+    
+    reset() {
+      this.count = 0;
+    }
+  }
+  
+  render() {
+    return `
+      <div class="h-counter">
+        <h3>Counter Component</h3>
+        <div class="controls">
+          <button class="btn secondary" @click="decrement">-</button>
+          <span class="count">${this.count}</span>
+          <button class="btn primary" @click="increment">+</button>
+          <button class="btn danger" @click="reset">Reset</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Toggle Component
+component Toggle {
+  state {
+    isOn: false,
+    label: "Toggle me"
+  }
+  
+  constructor(props) {
+    this.label = props.label || this.label;
+  }
+  
+  methods {
+    toggle() {
+      this.isOn = !this.isOn;
+      
+      // Demo - toggle body class for dark mode if label is Dark Mode
+      if (this.label === "Dark Mode") {
+        document.body.classList.toggle("theme-dark", this.isOn);
+      }
+    }
+  }
+  
+  render() {
+    return `
+      <div class="h-toggle">
+        <div class="toggle-label">
+          <span>${this.label}</span>
+          <div class="toggle-switch ${this.isOn ? 'active' : ''}" @click="toggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Tab Panel Component
+component TabPanel {
+  state {
+    activeTab: 0,
+    tabs: [
+      { id: 1, title: "Tab 1", content: "This is content for Tab 1. It demonstrates the ability to switch between different content panels without page reloads." },
+      { id: 2, title: "Tab 2", content: "Content for the second tab. Tabs are a common UI pattern used in many applications." },
+      { id: 3, title: "Tab 3", content: "Here's the third tab content. The TabPanel component manages which tab is active through component state." }
+    ]
+  }
+  
+  methods {
+    setActiveTab(index) {
+      this.activeTab = index;
+    }
+  }
+  
+  render() {
+    const tabButtons = this.tabs.map((tab, index) => `
+      <button class="tab-button ${index === this.activeTab ? 'active' : ''}" 
+              @click="setActiveTab(${index})">
+        ${tab.title}
+      </button>
+    `).join('');
+    
+    return `
+      <div class="h-tabs">
+        <h3>Tabs Component</h3>
+        <div class="tab-header">
+          ${tabButtons}
+        </div>
+        <div class="tab-content">
+          ${this.tabs[this.activeTab].content}
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Form with validation
+component ContactForm {
+  state {
+    name: "",
+    email: "",
+    message: "",
+    errors: {},
+    submitted: false
+  }
+  
+  methods {
+    updateField(field, value) {
+      this[field] = value;
+      // Clear error when field is edited
+      if (this.errors[field]) {
+        this.errors = { ...this.errors, [field]: null };
+      }
+    }
+    
+    validate() {
+      const newErrors = {};
+      
+      if (!this.name.trim()) {
+        newErrors.name = "Name is required";
+      }
+      
+      if (!this.email.trim()) {
+        newErrors.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+      
+      if (!this.message.trim()) {
+        newErrors.message = "Message is required";
+      }
+      
+      this.errors = newErrors;
+      return Object.keys(newErrors).length === 0;
+    }
+    
+    submitForm() {
+      if (this.validate()) {
+        this.submitted = true;
+        // In a real app, would send data to server here
+      }
+    }
+    
+    reset() {
+      this.name = "";
+      this.email = "";
+      this.message = "";
+      this.errors = {};
+      this.submitted = false;
+    }
+  }
+  
+  render() {
+    if (this.submitted) {
+      return `
+        <div class="h-form-success">
+          <h3>Thanks for your message!</h3>
+          <p>We've received your details:</p>
+          <ul>
+            <li><strong>Name:</strong> ${this.name}</li>
+            <li><strong>Email:</strong> ${this.email}</li>
+            <li><strong>Message:</strong> ${this.message}</li>
+          </ul>
+          <button class="btn primary" @click="reset">Send another message</button>
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="h-form">
+        <h3>Contact Form</h3>
+        <form @submit.prevent="submitForm">
+          <div class="form-group ${this.errors.name ? 'has-error' : ''}">
+            <label>Name</label>
+            <input 
+              type="text" 
+              value="${this.name}" 
+              @input="updateField('name', $event.target.value)"
+              placeholder="Your name"
+            >
+            ${this.errors.name ? `<div class="error-message">${this.errors.name}</div>` : ''}
+          </div>
+          
+          <div class="form-group ${this.errors.email ? 'has-error' : ''}">
+            <label>Email</label>
+            <input 
+              type="email" 
+              value="${this.email}" 
+              @input="updateField('email', $event.target.value)"
+              placeholder="Your email"
+            >
+            ${this.errors.email ? `<div class="error-message">${this.errors.email}</div>` : ''}
+          </div>
+          
+          <div class="form-group ${this.errors.message ? 'has-error' : ''}">
+            <label>Message</label>
+            <textarea 
+              @input="updateField('message', $event.target.value)"
+              placeholder="Your message"
+            >${this.message}</textarea>
+            ${this.errors.message ? `<div class="error-message">${this.errors.message}</div>` : ''}
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Send Message</button>
+            <button type="button" class="btn secondary" @click="reset">Reset</button>
+          </div>
+        </form>
+      </div>
+    `;
+  }
+}
+
+// Animated Card List Component
+component AnimatedList {
+  state {
+    items: [
+      { id: 1, title: "Card One", content: "This is the first card" },
+      { id: 2, title: "Card Two", content: "Content for the second card" },
+      { id: 3, title: "Card Three", content: "Third card content goes here" }
+    ],
+    newItemTitle: "",
+    newItemContent: ""
+  }
+  
+  methods {
+    addItem() {
+      if (!this.newItemTitle.trim()) {
+        return;
+      }
+      
+      this.items.push({
+        id: Date.now(),
+        title: this.newItemTitle,
+        content: this.newItemContent || "No content provided"
+      });
+      
+      this.newItemTitle = "";
+      this.newItemContent = "";
+    }
+    
+    removeItem(id) {
+      this.items = this.items.filter(item => item.id !== id);
+    }
+  }
+  
+  render() {
+    const cards = this.items.map(item => `
+      <div class="animated-card animate-slide-in" data-id="${item.id}">
+        <div class="card-header">
+          <h4>${item.title}</h4>
+          <button class="btn-icon danger" @click="removeItem(${item.id})">×</button>
+        </div>
+        <div class="card-body">
+          <p>${item.content}</p>
+        </div>
+      </div>
+    `).join('');
+    
+    return `
+      <div class="h-animated-list">
+        <h3>Animated Card List</h3>
+        
+        <div class="add-card-form">
+          <div class="form-group">
+            <input 
+              type="text" 
+              placeholder="Card Title" 
+              value="${this.newItemTitle}" 
+              @input="this.newItemTitle = $event.target.value"
+            >
+          </div>
+          <div class="form-group">
+            <input 
+              type="text" 
+              placeholder="Card Content" 
+              value="${this.newItemContent}" 
+              @input="this.newItemContent = $event.target.value"
+            >
+          </div>
+          <button class="btn primary" @click="addItem">Add Card</button>
+        </div>
+        
+        <div class="cards-container">
+          ${cards}
+        </div>
+      </div>
+    `;
+  }
+} 

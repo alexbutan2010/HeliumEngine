@@ -1,0 +1,661 @@
+<u-page>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helium Browser Test Engine</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="components.hyd"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Helium Browser Test Engine</h1>
+      <p>Testing Uranium, Hydrogen, and CSS capabilities</p>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" u-on:click="setActiveTab('uranium')">Uranium</button>
+      <button class="tab-btn" u-on:click="setActiveTab('hydrogen')">Hydrogen</button>
+      <button class="tab-btn" u-on:click="setActiveTab('css')">CSS</button>
+    </nav>
+
+    <main class="content" u-data="{ activeTab: 'uranium' }" u-methods="{
+      setActiveTab(state, tab) {
+        state.activeTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.textContent.toLowerCase() === tab) {
+            btn.classList.add('active');
+          }
+        });
+      }
+    }">
+      <!-- Uranium Section -->
+      <section id="uranium-section" class="tab-content" u-show="activeTab === 'uranium'">
+        <h2>Uranium Framework Features</h2>
+
+        <!-- State & Event Handling -->
+        <div class="feature-card" u-data="{ count: 0 }" u-methods="{
+          increment(state) { state.count++ },
+          decrement(state) { if (state.count > 0) state.count-- },
+          reset(state) { state.count = 0 }
+        }">
+          <h3>State & Event Handling</h3>
+          <div class="demo-area">
+            <div class="counter">
+              <button class="btn secondary" u-on:click="decrement">-</button>
+              <span class="count" u-text="count">0</span>
+              <button class="btn primary" u-on:click="increment">+</button>
+              <button class="btn danger" u-on:click="reset">Reset</button>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>u-data="{ count: 0 }"
+u-methods="{
+  increment(state) { state.count++ },
+  decrement(state) { if (state.count > 0) state.count-- }
+}"
+
+&lt;button u-on:click="increment">+&lt;/button>
+&lt;span u-text="count">0&lt;/span></code></pre>
+          </div>
+        </div>
+
+        <!-- Conditional Rendering -->
+        <div class="feature-card" u-data="{ visible: true, theme: 'light' }" u-methods="{
+          toggleVisibility(state) { state.visible = !state.visible },
+          toggleTheme(state) { state.theme = state.theme === 'light' ? 'dark' : 'light' }
+        }">
+          <h3>Conditional Rendering</h3>
+          <div class="demo-area">
+            <div class="controls">
+              <button class="btn primary" u-on:click="toggleVisibility">Toggle Content</button>
+              <button class="btn secondary" u-on:click="toggleTheme">Toggle Theme</button>
+            </div>
+            <div class="result-area" u-class="{ 'theme-dark': theme === 'dark' }">
+              <div u-if="visible" class="conditional-content animate-fade-in">
+                <p>This content is conditionally rendered!</p>
+                <p>Current theme: <strong u-text="theme">light</strong></p>
+              </div>
+              <div u-if="!visible" class="conditional-content animate-fade-in">
+                <p>Content is hidden. Click "Toggle Content" to show.</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>u-data="{ visible: true, theme: 'light' }"
+u-methods="{
+  toggleVisibility(state) { state.visible = !state.visible },
+  toggleTheme(state) { 
+    state.theme = state.theme === 'light' ? 'dark' : 'light' 
+  }
+}"
+
+&lt;div u-if="visible">Content here&lt;/div>
+&lt;div u-class="{ 'theme-dark': theme === 'dark' }"></code></pre>
+          </div>
+        </div>
+
+        <!-- List Rendering -->
+        <div class="feature-card" u-data="{
+          newItem: '',
+          items: [
+            { id: 1, text: 'Learn Uranium', completed: false },
+            { id: 2, text: 'Test Components', completed: false },
+            { id: 3, text: 'Build Application', completed: false }
+          ]
+        }" u-methods="{
+          addItem(state, event) {
+            event.preventDefault();
+            if (!state.newItem.trim()) return;
+            
+            state.items.push({
+              id: Date.now(),
+              text: state.newItem,
+              completed: false
+            });
+            
+            state.newItem = '';
+          },
+          toggleItem(state, id) {
+            const item = state.items.find(i => i.id === id);
+            if (item) item.completed = !item.completed;
+          },
+          removeItem(state, id) {
+            state.items = state.items.filter(i => i.id !== id);
+          }
+        }">
+          <h3>List Rendering</h3>
+          <div class="demo-area">
+            <form class="add-form" u-on:submit="addItem">
+              <input type="text" placeholder="Add new item..." u-model="newItem">
+              <button type="submit" class="btn primary">Add</button>
+            </form>
+            <ul class="item-list">
+              <li u-if="items.length === 0" class="empty-message">
+                No items in the list. Add one above!
+              </li>
+              <li u-for="item in items" class="list-item" u-class="{ completed: item.completed }">
+                <input type="checkbox" u-on:change="toggleItem(item.id)" u-bind="item.completed:checked">
+                <span class="item-text">{item.text}</span>
+                <button class="btn-icon danger" u-on:click="removeItem(item.id)">×</button>
+              </li>
+            </ul>
+          </div>
+          <div class="code-example">
+            <pre><code>u-data="{ items: [...], newItem: '' }"
+
+&lt;li u-for="item in items" u-class="{ completed: item.completed }">
+  &lt;input type="checkbox" 
+         u-on:change="toggleItem(item.id)" 
+         u-bind="item.completed:checked">
+  &lt;span>{item.text}&lt;/span>
+&lt;/li></code></pre>
+          </div>
+        </div>
+
+        <!-- Two-way Binding -->
+        <div class="feature-card" u-data="{ 
+          username: '', 
+          email: '', 
+          message: '',
+          submitted: false
+        }" u-methods="{
+          submitForm(state, event) {
+            event.preventDefault();
+            state.submitted = true;
+          },
+          resetForm(state) {
+            state.username = '';
+            state.email = '';
+            state.message = '';
+            state.submitted = false;
+          }
+        }">
+          <h3>Two-way Binding</h3>
+          <div class="demo-area">
+            <div u-if="!submitted">
+              <form class="bind-form" u-on:submit="submitForm">
+                <div class="form-group">
+                  <label>Username</label>
+                  <input type="text" u-model="username">
+                </div>
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" u-model="email">
+                </div>
+                <div class="form-group">
+                  <label>Message</label>
+                  <textarea u-model="message"></textarea>
+                </div>
+                <div class="preview">
+                  <h4>Live Preview:</h4>
+                  <p><strong>Username:</strong> <span u-text="username">-</span></p>
+                  <p><strong>Email:</strong> <span u-text="email">-</span></p>
+                  <p><strong>Message:</strong> <span u-text="message">-</span></p>
+                </div>
+                <button type="submit" class="btn primary">Submit</button>
+              </form>
+            </div>
+            <div u-if="submitted" class="success-message">
+              <h4>Form Submitted!</h4>
+              <p><strong>Username:</strong> <span u-text="username"></span></p>
+              <p><strong>Email:</strong> <span u-text="email"></span></p>
+              <p><strong>Message:</strong> <span u-text="message"></span></p>
+              <button class="btn secondary" u-on:click="resetForm">Reset Form</button>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>u-data="{ username: '', email: '', message: '' }"
+
+&lt;input type="text" u-model="username">
+&lt;p>Username: &lt;span u-text="username">&lt;/span>&lt;/p></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hydrogen Section -->
+      <section id="hydrogen-section" class="tab-content" u-show="activeTab === 'hydrogen'">
+        <h2>Hydrogen Components</h2>
+        
+        <!-- Counter Component -->
+        <div class="feature-card">
+          <h3>Counter Component</h3>
+          <div class="demo-area">
+            <div id="counter-component" data-component="Counter"></div>
+          </div>
+          <div class="code-example">
+            <pre><code>component Counter {
+  state {
+    count: 0
+  }
+  
+  methods {
+    increment() {
+      this.count++;
+    }
+    
+    decrement() {
+      if (this.count > 0) {
+        this.count--;
+      }
+    }
+  }
+  
+  render() {
+    return `
+      &lt;div class="counter">
+        &lt;button @click="decrement">-&lt;/button>
+        &lt;span>${this.count}&lt;/span>
+        &lt;button @click="increment">+&lt;/button>
+      &lt;/div>
+    `;
+  }
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- Toggle Component -->
+        <div class="feature-card">
+          <h3>Toggle Component</h3>
+          <div class="demo-area">
+            <div id="toggle-component" data-component="Toggle" data-props='{"label": "Dark Mode"}'></div>
+          </div>
+          <div class="code-example">
+            <pre><code>component Toggle {
+  state {
+    isOn: false,
+    label: "Toggle me"
+  }
+  
+  constructor(props) {
+    this.label = props.label || this.label;
+  }
+  
+  methods {
+    toggle() {
+      this.isOn = !this.isOn;
+    }
+  }
+  
+  render() {
+    return `
+      &lt;div class="toggle">
+        &lt;span>${this.label}&lt;/span>
+        &lt;div class="toggle-switch ${this.isOn ? 'active' : ''}" 
+             @click="toggle">
+          &lt;div class="toggle-slider">&lt;/div>
+        &lt;/div>
+      &lt;/div>
+    `;
+  }
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- Tabs Component -->
+        <div class="feature-card">
+          <h3>Tabs Component</h3>
+          <div class="demo-area">
+            <div id="tabs-component" data-component="TabPanel"></div>
+          </div>
+          <div class="code-example">
+            <pre><code>component TabPanel {
+  state {
+    activeTab: 0,
+    tabs: [
+      { id: 1, title: "Tab 1", content: "Tab 1 content" },
+      { id: 2, title: "Tab 2", content: "Tab 2 content" }
+    ]
+  }
+  
+  methods {
+    setActiveTab(index) {
+      this.activeTab = index;
+    }
+  }
+  
+  render() {
+    const tabButtons = this.tabs.map((tab, index) => `
+      &lt;button class="${index === this.activeTab ? 'active' : ''}" 
+              @click="setActiveTab(${index})">
+        ${tab.title}
+      &lt;/button>
+    `).join('');
+    
+    return `
+      &lt;div class="tabs">
+        &lt;div class="tab-header">${tabButtons}&lt;/div>
+        &lt;div class="tab-content">
+          ${this.tabs[this.activeTab].content}
+        &lt;/div>
+      &lt;/div>
+    `;
+  }
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- Contact Form Component -->
+        <div class="feature-card">
+          <h3>Form Component</h3>
+          <div class="demo-area">
+            <div id="form-component" data-component="ContactForm"></div>
+          </div>
+          <div class="code-example">
+            <pre><code>component ContactForm {
+  state {
+    name: "",
+    email: "",
+    message: "",
+    errors: {},
+    submitted: false
+  }
+  
+  methods {
+    validate() {
+      const newErrors = {};
+      
+      if (!this.name.trim()) {
+        newErrors.name = "Name is required";
+      }
+      
+      if (!this.email.trim()) {
+        newErrors.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+        newErrors.email = "Please enter a valid email";
+      }
+      
+      this.errors = newErrors;
+      return Object.keys(newErrors).length === 0;
+    }
+    
+    submitForm() {
+      if (this.validate()) {
+        this.submitted = true;
+      }
+    }
+  }
+  
+  render() {
+    // Form rendering logic
+  }
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- Animated List Component -->
+        <div class="feature-card">
+          <h3>Animated List Component</h3>
+          <div class="demo-area">
+            <div id="list-component" data-component="AnimatedList"></div>
+          </div>
+          <div class="code-example">
+            <pre><code>component AnimatedList {
+  state {
+    items: [
+      { id: 1, title: "Card One", content: "First card" },
+      { id: 2, title: "Card Two", content: "Second card" }
+    ],
+    newItemTitle: "",
+    newItemContent: ""
+  }
+  
+  methods {
+    addItem() {
+      if (!this.newItemTitle.trim()) return;
+      
+      this.items.push({
+        id: Date.now(),
+        title: this.newItemTitle,
+        content: this.newItemContent
+      });
+      
+      this.newItemTitle = "";
+      this.newItemContent = "";
+    }
+    
+    removeItem(id) {
+      this.items = this.items.filter(item => item.id !== id);
+    }
+  }
+  
+  render() {
+    // List rendering logic
+  }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- CSS Section -->
+      <section id="css-section" class="tab-content" u-show="activeTab === 'css'">
+        <h2>CSS Features</h2>
+        
+        <!-- CSS Variables -->
+        <div class="feature-card">
+          <h3>CSS Variables</h3>
+          <div class="demo-area">
+            <div class="colors-grid">
+              <div class="color-box" style="background-color: var(--primary-color);">
+                <span>Primary</span>
+              </div>
+              <div class="color-box" style="background-color: var(--secondary-color);">
+                <span>Secondary</span>
+              </div>
+              <div class="color-box" style="background-color: var(--success-color);">
+                <span>Success</span>
+              </div>
+              <div class="color-box" style="background-color: var(--danger-color);">
+                <span>Danger</span>
+              </div>
+              <div class="color-box" style="background-color: var(--warning-color);">
+                <span>Warning</span>
+              </div>
+              <div class="color-box" style="background-color: var(--info-color);">
+                <span>Info</span>
+              </div>
+            </div>
+            <div class="spacing-demo">
+              <div class="spacing-box" style="margin: var(--spacing-xs);">XS</div>
+              <div class="spacing-box" style="margin: var(--spacing-sm);">SM</div>
+              <div class="spacing-box" style="margin: var(--spacing-md);">MD</div>
+              <div class="spacing-box" style="margin: var(--spacing-lg);">LG</div>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>:root {
+  --primary-color: #4a6cf7;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- Flexbox -->
+        <div class="feature-card">
+          <h3>Flexbox</h3>
+          <div class="demo-area">
+            <h4>justify-content</h4>
+            <div class="flex justify-start flex-demo">
+              <div class="flex-item">1</div>
+              <div class="flex-item">2</div>
+              <div class="flex-item">3</div>
+            </div>
+            <div class="flex justify-center flex-demo">
+              <div class="flex-item">1</div>
+              <div class="flex-item">2</div>
+              <div class="flex-item">3</div>
+            </div>
+            <div class="flex justify-between flex-demo">
+              <div class="flex-item">1</div>
+              <div class="flex-item">2</div>
+              <div class="flex-item">3</div>
+            </div>
+            
+            <h4>align-items</h4>
+            <div class="flex justify-center items-start flex-demo" style="height: 100px;">
+              <div class="flex-item" style="height: 30px;">1</div>
+              <div class="flex-item" style="height: 50px;">2</div>
+              <div class="flex-item" style="height: 70px;">3</div>
+            </div>
+            <div class="flex justify-center items-center flex-demo" style="height: 100px;">
+              <div class="flex-item" style="height: 30px;">1</div>
+              <div class="flex-item" style="height: 50px;">2</div>
+              <div class="flex-item" style="height: 70px;">3</div>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>.flex { display: flex; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }</code></pre>
+          </div>
+        </div>
+        
+        <!-- CSS Grid -->
+        <div class="feature-card">
+          <h3>CSS Grid</h3>
+          <div class="demo-area">
+            <div class="grid grid-cols-3 grid-demo">
+              <div class="grid-item">1</div>
+              <div class="grid-item">2</div>
+              <div class="grid-item">3</div>
+              <div class="grid-item">4</div>
+              <div class="grid-item">5</div>
+              <div class="grid-item">6</div>
+            </div>
+            
+            <h4>Responsive Grid</h4>
+            <p>Resize window to see changes</p>
+            <div class="responsive-grid grid-demo">
+              <div class="grid-item">1</div>
+              <div class="grid-item">2</div>
+              <div class="grid-item">3</div>
+              <div class="grid-item">4</div>
+              <div class="grid-item">5</div>
+              <div class="grid-item">6</div>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>.grid { display: grid; }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* Responsive Grid */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}</code></pre>
+          </div>
+        </div>
+        
+        <!-- Animations -->
+        <div class="feature-card">
+          <h3>CSS Animations</h3>
+          <div class="demo-area">
+            <div class="animation-demo">
+              <div class="animation-box animate-fade-in">Fade In</div>
+              <div class="animation-box animate-slide-in">Slide In</div>
+              <div class="animation-box animate-pulse">Pulse</div>
+              <div class="animation-box animate-rotate">Rotate</div>
+            </div>
+            <button class="btn primary" id="replay-animations">Replay Animations</button>
+          </div>
+          <div class="code-example">
+            <pre><code>@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-fade-in { animation: fadeIn 1s; }
+.animate-slide-in { animation: slideIn 1s; }
+.animate-pulse { animation: pulse 2s infinite; }</code></pre>
+          </div>
+        </div>
+        
+        <!-- Responsive Design -->
+        <div class="feature-card">
+          <h3>Responsive Design</h3>
+          <div class="demo-area">
+            <div class="responsive-demo">
+              <div class="responsive-box">
+                <h4>Resize window to see changes</h4>
+                <p class="desktop-only">Visible on desktop</p>
+                <p class="tablet-only">Visible on tablet</p>
+                <p class="mobile-only">Visible on mobile</p>
+                <div class="responsive-container">
+                  <div class="responsive-item">1</div>
+                  <div class="responsive-item">2</div>
+                  <div class="responsive-item">3</div>
+                  <div class="responsive-item">4</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="code-example">
+            <pre><code>/* Media Queries */
+@media (max-width: 768px) {
+  .desktop-only { display: none; }
+  .responsive-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .tablet-only { display: none; }
+  .responsive-container {
+    grid-template-columns: 1fr;
+  }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Hydrogen components
+      if (typeof Hydrogen !== 'undefined') {
+        Hydrogen.initComponents();
+      }
+      
+      // Animation replay button
+      const replayBtn = document.getElementById('replay-animations');
+      if (replayBtn) {
+        replayBtn.addEventListener('click', () => {
+          const animations = document.querySelectorAll('.animation-box');
+          animations.forEach(anim => {
+            anim.style.animation = 'none';
+            setTimeout(() => {
+              anim.style.animation = '';
+            }, 10);
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</u-page> 
