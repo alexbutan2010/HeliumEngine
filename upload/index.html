@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Your Helium Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .file-input {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .submit-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: #1557b0;
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .instructions h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .instructions ol {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        .error {
+            color: #d93025;
+            margin-top: 5px;
+            display: none;
+        }
+        .success {
+            color: #188038;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Your Helium Website</h1>
+        
+        <form id="uploadForm" class="upload-form">
+            <div class="form-group">
+                <label for="domain">Website Domain (without .he):</label>
+                <input type="text" id="domain" name="domain" required>
+                <div id="domainError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Required Files:</label>
+                <div class="file-input" id="fileInput">
+                    <p>Drag and drop your website files here or click to select</p>
+                    <p>Required files: index.html, index.css, index.js</p>
+                </div>
+                <input type="file" id="files" name="files" multiple style="display: none">
+                <div id="filesError" class="error"></div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Upload Website</button>
+        </form>
+        
+        <div class="instructions">
+            <h2>How to Upload Your Website</h2>
+            <ol>
+                <li>Choose a unique domain name for your website (without .he extension)</li>
+                <li>Prepare your website files:
+                    <ul>
+                        <li>index.html - Your website's HTML content</li>
+                        <li>index.css - Your website's styles</li>
+                        <li>index.js - Your website's JavaScript code</li>
+                    </ul>
+                </li>
+                <li>Make sure your domain name is available (not already taken)</li>
+                <li>Upload all required files at once</li>
+                <li>Click the Upload Website button</li>
+            </ol>
+            <p>After successful upload, your website will be available at: <code>he://your-domain.he</code></p>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const filesInput = document.getElementById('files');
+        const domainInput = document.getElementById('domain');
+        const domainError = document.getElementById('domainError');
+        const filesError = document.getElementById('filesError');
+        
+        // Handle file drag and drop
+        fileInput.addEventListener('click', () => filesInput.click());
+        
+        fileInput.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileInput.style.borderColor = '#1a73e8';
+        });
+        
+        fileInput.addEventListener('dragleave', () => {
+            fileInput.style.borderColor = '#ddd';
+        });
+        
+        fileInput.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.style.borderColor = '#ddd';
+            filesInput.files = e.dataTransfer.files;
+            updateFileList();
+        });
+        
+        filesInput.addEventListener('change', updateFileList);
+        
+        function updateFileList() {
+            const files = filesInput.files;
+            if (files.length > 0) {
+                fileInput.innerHTML = `<p>${files.length} file(s) selected</p>`;
+            } else {
+                fileInput.innerHTML = `<p>Drag and drop your website files here or click to select</p>
+                                     <p>Required files: index.html, index.css, index.js</p>`;
+            }
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Reset errors
+            domainError.style.display = 'none';
+            filesError.style.display = 'none';
+            
+            const domain = domainInput.value.trim();
+            const files = filesInput.files;
+            
+            // Validate domain
+            if (!domain) {
+                domainError.textContent = 'Please enter a domain name';
+                domainError.style.display = 'block';
+                return;
+            }
+            
+            // Validate files
+            if (files.length === 0) {
+                filesError.textContent = 'Please select your website files';
+                filesError.style.display = 'block';
+                return;
+            }
+            
+            // Check for required files
+            const requiredFiles = ['index.html', 'index.css', 'index.js'];
+            const fileNames = Array.from(files).map(file => file.name);
+            const missingFiles = requiredFiles.filter(file => !fileNames.includes(file));
+            
+            if (missingFiles.length > 0) {
+                filesError.textContent = `Missing required files: ${missingFiles.join(', ')}`;
+                filesError.style.display = 'block';
+                return;
+            }
+            
+            // Create FormData
+            const formData = new FormData();
+            formData.append('domain', domain);
+            for (const file of files) {
+                formData.append('files', file);
+            }
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Website uploaded successfully! You can now access it at: he://' + domain + '.he');
+                    form.reset();
+                    updateFileList();
+                } else {
+                    if (result.error === 'domain_taken') {
+                        domainError.textContent = 'This domain is already taken. Please choose another one.';
+                        domainError.style.display = 'block';
+                    } else {
+                        alert('Error uploading website: ' + result.error);
+                    }
+                }
+            } catch (error) {
+                alert('Error uploading website. Please try again.');
+                console.error('Upload error:', error);
+            }
+        });
+    </script>
+</body>
+</html> 
