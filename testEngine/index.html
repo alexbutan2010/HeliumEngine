@@ -3,64 +3,155 @@
 <head>
     <title>Hydrogen Test Engine</title>
     <link rel="stylesheet" href="index.css">
+    <!-- Load Hydrogen Runtime first -->
     <script src="hydrogen-runtime.js"></script>
-    <script type="text/hydrogen" src="hydrogen.hyd"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Hydrogen Test Engine</h1>
-        
-        <!-- Counter Component -->
-        <div class="test-section">
-            <h2>Counter Test</h2>
-            <Counter></Counter>
-        </div>
+    <!-- Root element for Hydrogen app -->
+    <div id="app">
+        <div class="container">
+            <h1>Hydrogen Test Engine</h1>
+            
+            <!-- Counter Component -->
+            <div class="test-section">
+                <h2>Counter Test</h2>
+                <div id="counter">
+                    <h3>Counter Component</h3>
+                    <div class="counter-display" data-bind="count"></div>
+                    <div class="counter-buttons">
+                        <button data-action="decrement">-</button>
+                        <button data-action="increment">+</button>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Todo List Component -->
-        <div class="test-section">
-            <h2>Todo List Test</h2>
-            <TodoList></TodoList>
-        </div>
+            <!-- Todo List Component -->
+            <div class="test-section">
+                <h2>Todo List Test</h2>
+                <div id="todo-list">
+                    <h3>Todo List Component</h3>
+                    <form data-action="addTodo">
+                        <input type="text" placeholder="Add new todo..." data-bind="newTodo">
+                        <button type="submit">Add</button>
+                    </form>
+                    <ul class="todo-list" data-template="todos">
+                        <li>
+                            <span data-bind="text"></span>
+                            <button data-action="removeTodo" data-param="index">Delete</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-        <!-- Accordion Component -->
-        <div class="test-section">
-            <h2>Accordion Test</h2>
-            <Accordion :items="[
-                { title: 'Section 1', content: 'Content for section 1' },
-                { title: 'Section 2', content: 'Content for section 2' },
-                { title: 'Section 3', content: 'Content for section 3' }
-            ]"></Accordion>
-        </div>
+            <!-- Accordion Component -->
+            <div class="test-section">
+                <h2>Accordion Test</h2>
+                <div id="accordion">
+                    <h3>Accordion Component</h3>
+                    <div class="accordion" data-template="items">
+                        <div class="accordion-item">
+                            <div class="accordion-header" data-action="toggle" data-param="index">
+                                <span data-bind="title"></span>
+                            </div>
+                            <div class="accordion-content" data-class="active: isActive">
+                                <span data-bind="content"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Modal Component -->
-        <div class="test-section">
-            <h2>Modal Test</h2>
-            <Modal></Modal>
-        </div>
+            <!-- Modal Component -->
+            <div class="test-section">
+                <h2>Modal Test</h2>
+                <div id="modal">
+                    <button data-action="openModal">Open Modal</button>
+                    <div class="modal" data-show="isOpen">
+                        <div class="modal-content">
+                            <span class="close" data-action="closeModal">&times;</span>
+                            <h3>Modal Component</h3>
+                            <p>This is a modal dialog.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Form Component -->
-        <div class="test-section">
-            <h2>Form Test</h2>
-            <Form></Form>
-        </div>
+            <!-- Form Component -->
+            <div class="test-section">
+                <h2>Form Test</h2>
+                <div id="form">
+                    <h3>Form Component</h3>
+                    <form data-action="submitForm">
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" data-bind="formData.name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" data-bind="formData.email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Message:</label>
+                            <textarea data-bind="formData.message" required></textarea>
+                        </div>
+                        <button type="submit">Submit</button>
+                    </form>
+                </div>
+            </div>
 
-        <!-- Animation Component -->
-        <div class="test-section">
-            <h2>Animation Test</h2>
-            <Animation></Animation>
-        </div>
+            <!-- Animation Component -->
+            <div class="test-section">
+                <h2>Animation Test</h2>
+                <div id="animation">
+                    <h3>Animation Component</h3>
+                    <div class="animation-box" data-class="playing: isPlaying"></div>
+                    <button data-action="toggleAnimation">
+                        <span data-bind="playButtonText"></span>
+                    </button>
+                </div>
+            </div>
 
-        <!-- Media Player Component -->
-        <div class="test-section">
-            <h2>Media Player Test</h2>
-            <MediaPlayer></MediaPlayer>
+            <!-- Media Player Component -->
+            <div class="test-section">
+                <h2>Media Player Test</h2>
+                <div id="media-player">
+                    <h3>Media Player Component</h3>
+                    <video src="sample.mp4" data-ref="video" data-attr="muted: isMuted"></video>
+                    <div class="media-controls">
+                        <button data-action="togglePlay">
+                            <span data-bind="playButtonText"></span>
+                        </button>
+                        <button data-action="toggleMute">
+                            <span data-bind="muteButtonText"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Load Hydrogen components after DOM -->
+    <script type="text/hydrogen" src="hydrogen.hyd"></script>
     <script>
         // Initialize Hydrogen runtime when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // The runtime will automatically initialize all components
+            // Initialize each component with its container element
+            const hydrogen = new HydrogenRuntime();
+            
+            hydrogen.createComponent('Counter', '#counter');
+            hydrogen.createComponent('TodoList', '#todo-list');
+            hydrogen.createComponent('Accordion', '#accordion', {
+                items: [
+                    { title: 'Section 1', content: 'Content for section 1' },
+                    { title: 'Section 2', content: 'Content for section 2' },
+                    { title: 'Section 3', content: 'Content for section 3' }
+                ]
+            });
+            hydrogen.createComponent('Modal', '#modal');
+            hydrogen.createComponent('Form', '#form');
+            hydrogen.createComponent('Animation', '#animation');
+            hydrogen.createComponent('MediaPlayer', '#media-player');
+
             console.log('Hydrogen components initialized');
         });
     </script>
