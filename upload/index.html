@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Interface</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>File Upload</h1>
+        <p class="description">Upload your files (HTML, CSS, and/or JavaScript). All fields are optional.</p>
+        
+        <form id="uploadForm" class="upload-form">
+            <div class="file-option">
+                <input type="checkbox" id="includeHtml" name="includeHtml" checked>
+                <label for="includeHtml">Include HTML file</label>
+                <div class="file-input-container">
+                    <input type="file" id="htmlFile" name="htmlFile" accept=".html" class="file-input">
+                    <label for="htmlFile" class="file-label">Choose HTML file</label>
+                </div>
+            </div>
+
+            <div class="file-option">
+                <input type="checkbox" id="includeCss" name="includeCss">
+                <label for="includeCss">Include CSS file</label>
+                <div class="file-input-container">
+                    <input type="file" id="cssFile" name="cssFile" accept=".css" class="file-input">
+                    <label for="cssFile" class="file-label">Choose CSS file</label>
+                </div>
+            </div>
+
+            <div class="file-option">
+                <input type="checkbox" id="includeJs" name="includeJs">
+                <label for="includeJs">Include JavaScript file</label>
+                <div class="file-input-container">
+                    <input type="file" id="jsFile" name="jsFile" accept=".js" class="file-input">
+                    <label for="jsFile" class="file-label">Choose JavaScript file</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="upload-button">Upload Files</button>
+                <button type="reset" class="reset-button">Reset</button>
+            </div>
+        </form>
+
+        <div id="uploadStatus" class="upload-status"></div>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html> 
