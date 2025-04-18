@@ -80,48 +80,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 formData.append('files[]', file, filePath);
             });
 
-            // Add token to headers
-            const headers = new Headers();
-            headers.append('Authorization', `Bearer ${token}`);
-
-            // Use the correct URL format for Helium browser
-            const uploadUrl = `he://upload/${domain}`;
-
-            // Upload files using XMLHttpRequest instead of fetch
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', uploadUrl, true);
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    try {
-                        const result = JSON.parse(xhr.responseText);
-                        if (result.success) {
-                            showSuccess(`Website uploaded successfully! Your site is now available at: ${domain}.he`);
-                            form.reset();
-                            fileList.className = 'file-list';
-                        } else {
-                            throw new Error(result.error || 'Upload failed');
-                        }
-                    } catch (error) {
-                        showError(`Error processing response: ${error.message}`);
-                    }
-                } else {
-                    if (xhr.status === 401) {
-                        localStorage.removeItem('helium_access_token');
-                        showError('Access token is invalid or expired. Please enter a new token.');
+            // Use window.helium.upload if available
+            if (window.helium && typeof window.helium.upload === 'function') {
+                try {
+                    const result = await window.helium.upload(domain, formData);
+                    if (result.success) {
+                        showSuccess(`Website uploaded successfully! Your site is now available at: ${domain}.he`);
+                        form.reset();
+                        fileList.className = 'file-list';
                     } else {
-                        showError(`Upload failed: ${xhr.statusText}`);
+                        throw new Error(result.error || 'Upload failed');
                     }
+                } catch (error) {
+                    throw new Error(`Helium upload failed: ${error.message}`);
                 }
-            };
+            } else {
+                // Fallback to XMLHttpRequest with he:// protocol
+                const uploadUrl = `he://upload.he/${domain}`;
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', uploadUrl, true);
+                    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            try {
+                                const result = JSON.parse(xhr.responseText);
+                                if (result.success) {
+                                    showSuccess(`Website uploaded successfully! Your site is now available at: ${domain}.he`);
+                                    form.reset();
+                                    fileList.className = 'file-list';
+                                    resolve();
+                                } else {
+                                    reject(new Error(result.error || 'Upload failed'));
+                                }
+                            } catch (error) {
+                                reject(new Error(`Error processing response: ${error.message}`));
+                            }
+                        } else {
+                            if (xhr.status === 401) {
+                                localStorage.removeItem('helium_access_token');
+                                reject(new Error('Access token is invalid or expired. Please enter a new token.'));
+                            } else {
+                                reject(new Error(`Upload failed: ${xhr.statusText}`));
+                            }
+                        }
+                    };
 
-            xhr.onerror = function() {
-                showError('Network error occurred while uploading');
-            };
+                    xhr.onerror = function() {
+                        reject(new Error('Network error occurred while uploading'));
+                    };
 
-            xhr.send(formData);
-            
+                    xhr.send(formData);
+                });
+            }
         } catch (error) {
             console.error('Full error details:', error);
             showError(`Error uploading website: ${error.message}`);
