@@ -20,6 +20,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle folder selection
     folderInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
+        console.log('Selected folder contents:', files);
+        
+        // Check if we actually got files from a folder
+        if (files.length === 0) {
+            showError('Please select a folder containing website files');
+            return;
+        }
+
+        // Check if files have webkitRelativePath (indicates folder selection)
+        if (!files[0].webkitRelativePath) {
+            showError('Please select a folder, not individual files');
+            folderInput.value = ''; // Clear the input
+            return;
+        }
+
         displayFileList(files);
     });
 
@@ -49,6 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Verify it's a folder selection
+        if (!files[0].webkitRelativePath) {
+            showError('Please select a folder, not individual files');
+            return;
+        }
+
         // Get GitHub token
         const token = getGitHubToken();
         if (!token) {
@@ -57,9 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Filter for only HTML, CSS, and JS files
-        const htmlFiles = files.filter(file => file.name.endsWith('.html'));
-        const cssFiles = files.filter(file => file.name.endsWith('.css'));
-        const jsFiles = files.filter(file => file.name.endsWith('.js'));
+        const htmlFiles = files.filter(file => file.name.toLowerCase().endsWith('.html'));
+        const cssFiles = files.filter(file => file.name.toLowerCase().endsWith('.css'));
+        const jsFiles = files.filter(file => file.name.toLowerCase().endsWith('.js'));
 
         if (htmlFiles.length === 0 && cssFiles.length === 0 && jsFiles.length === 0) {
             showError('No website files found. Please include at least one HTML, CSS, or JavaScript file.');
@@ -124,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        content: btoa(content),
+                        content: btoa(unescape(encodeURIComponent(content))), // Handle UTF-8 content
                         encoding: 'base64'
                     })
                 });
@@ -221,13 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function displayFileList(files) {
-        const htmlFiles = files.filter(file => file.name.endsWith('.html'));
-        const cssFiles = files.filter(file => file.name.endsWith('.css'));
-        const jsFiles = files.filter(file => file.name.endsWith('.js'));
+        const htmlFiles = files.filter(file => file.name.toLowerCase().endsWith('.html'));
+        const cssFiles = files.filter(file => file.name.toLowerCase().endsWith('.css'));
+        const jsFiles = files.filter(file => file.name.toLowerCase().endsWith('.js'));
         const otherFiles = files.filter(file => 
-            !file.name.endsWith('.html') && 
-            !file.name.endsWith('.css') && 
-            !file.name.endsWith('.js')
+            !file.name.toLowerCase().endsWith('.html') && 
+            !file.name.toLowerCase().endsWith('.css') && 
+            !file.name.toLowerCase().endsWith('.js')
         );
 
         let html = '<h3>Selected Files</h3><ul>';
