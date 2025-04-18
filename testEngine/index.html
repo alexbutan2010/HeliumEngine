@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hydrogen Test Engine</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="hydrogen-runtime.js"></script>
+    <script type="text/hydrogen" src="hydrogen.hyd"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Hydrogen Test Engine</h1>
+        
+        <!-- Counter Component -->
+        <div class="test-section">
+            <h2>Counter Test</h2>
+            <Counter></Counter>
+        </div>
+
+        <!-- Todo List Component -->
+        <div class="test-section">
+            <h2>Todo List Test</h2>
+            <TodoList></TodoList>
+        </div>
+
+        <!-- Accordion Component -->
+        <div class="test-section">
+            <h2>Accordion Test</h2>
+            <Accordion :items="[
+                { title: 'Section 1', content: 'Content for section 1' },
+                { title: 'Section 2', content: 'Content for section 2' },
+                { title: 'Section 3', content: 'Content for section 3' }
+            ]"></Accordion>
+        </div>
+
+        <!-- Modal Component -->
+        <div class="test-section">
+            <h2>Modal Test</h2>
+            <Modal></Modal>
+        </div>
+
+        <!-- Form Component -->
+        <div class="test-section">
+            <h2>Form Test</h2>
+            <Form></Form>
+        </div>
+
+        <!-- Animation Component -->
+        <div class="test-section">
+            <h2>Animation Test</h2>
+            <Animation></Animation>
+        </div>
+
+        <!-- Media Player Component -->
+        <div class="test-section">
+            <h2>Media Player Test</h2>
+            <MediaPlayer></MediaPlayer>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Hydrogen runtime when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // The runtime will automatically initialize all components
+            console.log('Hydrogen components initialized');
+        });
+    </script>
+</body>
+</html> 
