@@ -84,34 +84,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const headers = new Headers();
             headers.append('Authorization', `Bearer ${token}`);
 
-            // Upload files
-            const response = await fetch('/upload', {
-                method: 'POST',
-                headers: headers,
-                body: formData
-            });
+            // Use the correct URL format for Helium browser
+            const uploadUrl = `he://upload/${domain}`;
 
-            if (!response.ok) {
-                if (response.status === 401) {
-                    // Token expired or invalid
-                    localStorage.removeItem('helium_access_token');
-                    throw new Error('Access token is invalid or expired. Please enter a new token.');
+            // Upload files using XMLHttpRequest instead of fetch
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', uploadUrl, true);
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.success) {
+                            showSuccess(`Website uploaded successfully! Your site is now available at: ${domain}.he`);
+                            form.reset();
+                            fileList.className = 'file-list';
+                        } else {
+                            throw new Error(result.error || 'Upload failed');
+                        }
+                    } catch (error) {
+                        showError(`Error processing response: ${error.message}`);
+                    }
+                } else {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('helium_access_token');
+                        showError('Access token is invalid or expired. Please enter a new token.');
+                    } else {
+                        showError(`Upload failed: ${xhr.statusText}`);
+                    }
                 }
-                throw new Error(`Upload failed: ${response.statusText}`);
-            }
+            };
 
-            const result = await response.json();
-            console.log('Upload response:', result);
+            xhr.onerror = function() {
+                showError('Network error occurred while uploading');
+            };
 
-            if (result.success) {
-                showSuccess(`Website uploaded successfully! Your site is now available at: ${domain}.he`);
-            } else {
-                throw new Error(result.error || 'Upload failed');
-            }
-            
-            // Reset form
-            form.reset();
-            fileList.className = 'file-list';
+            xhr.send(formData);
             
         } catch (error) {
             console.error('Full error details:', error);
