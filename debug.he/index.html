@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nitrogen Debug Test</title>
+    <link rel="nitrogen" href="test.h">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .nitrogen-test {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Nitrogen Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>Nitrogen Status</h2>
+        <div id="nitrogen-status">Checking...</div>
+        <div id="interpreter-status">Checking...</div>
+        <div id="engine-status">Checking...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Nitrogen File Loading Test</h2>
+        <div id="file-load-status">Checking...</div>
+        <button class="nitrogen-test" onclick="testNitrogenLoading()">Test Manual Load</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <div id="console-output" style="background: #1a1a1a; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        let consoleOutput = document.getElementById('console-output');
+        
+        function logToPage(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleOutput.innerHTML += `<div>${timestamp} - ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Override console.log to also show on page
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToPage(args.join(' '));
+        };
+        
+        function checkNitrogenStatus() {
+            // Check if Nitrogen interpreter is available
+            if (window.nitrogenInterpreter) {
+                document.getElementById('interpreter-status').innerHTML = '✅ Nitrogen Interpreter: Available';
+                document.getElementById('interpreter-status').style.color = '#38ef7d';
+            } else {
+                document.getElementById('interpreter-status').innerHTML = '❌ Nitrogen Interpreter: Not Found';
+                document.getElementById('interpreter-status').style.color = '#ff6b6b';
+            }
+            
+            // Check if Nitrogen engine is available
+            if (window.nitrogen) {
+                document.getElementById('engine-status').innerHTML = '✅ Nitrogen Engine: Available';
+                document.getElementById('engine-status').style.color = '#38ef7d';
+            } else {
+                document.getElementById('engine-status').innerHTML = '❌ Nitrogen Engine: Not Found';
+                document.getElementById('engine-status').style.color = '#ff6b6b';
+            }
+            
+            // Overall status
+            if (window.nitrogenInterpreter || window.nitrogen) {
+                document.getElementById('nitrogen-status').innerHTML = '✅ Nitrogen: Working';
+                document.getElementById('nitrogen-status').style.color = '#38ef7d';
+            } else {
+                document.getElementById('nitrogen-status').innerHTML = '❌ Nitrogen: Not Working';
+                document.getElementById('nitrogen-status').style.color = '#ff6b6b';
+            }
+        }
+        
+        async function testNitrogenLoading() {
+            logToPage('🧪 Testing manual Nitrogen loading...');
+            
+            if (window.nitrogenInterpreter) {
+                try {
+                    await window.nitrogenInterpreter.loadNitrogenFile('test.h');
+                    document.getElementById('file-load-status').innerHTML = '✅ Manual load: Success';
+                    document.getElementById('file-load-status').style.color = '#38ef7d';
+                    logToPage('✅ Manual load successful');
+                } catch (error) {
+                    document.getElementById('file-load-status').innerHTML = '❌ Manual load: Failed - ' + error.message;
+                    document.getElementById('file-load-status').style.color = '#ff6b6b';
+                    logToPage('❌ Manual load failed: ' + error.message);
+                }
+            } else {
+                document.getElementById('file-load-status').innerHTML = '❌ Manual load: No interpreter available';
+                document.getElementById('file-load-status').style.color = '#ff6b6b';
+                logToPage('❌ No interpreter available for manual load');
+            }
+        }
+        
+        // Initial status check
+        document.addEventListener('DOMContentLoaded', function() {
+            logToPage('🧪 Nitrogen Debug Test initialized');
+            
+            // Check status immediately
+            checkNitrogenStatus();
+            
+            // Check status again after a delay to catch late-loading scripts
+            setTimeout(() => {
+                logToPage('🔄 Rechecking Nitrogen status...');
+                checkNitrogenStatus();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
